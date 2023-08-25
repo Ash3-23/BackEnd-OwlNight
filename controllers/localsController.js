@@ -1,91 +1,111 @@
 const Locals = require('../models/locals');
 // const ProManager = require('../models/proManager') USO PARA EL EDIT?
-const cloudinary = require('../cloudinaryConfig/index')
-// const cloudinary = require('cloudinary').v2;
+// const cloudinary = require('../cloudinaryConfig/index');
+require("dotenv").config();
+const upload = require('../configMulter/index');
+const { uploadImage } = require("../cloudinaryConfig/index")
+
 
 const getAllLocals = async (req, res) => {
-    const allLocals = await Locals.find();
-    res.json(allLocals)
-    console.log("trayendo todos los locales")
-}
+    try {
+        const allLocals = await Locals.find();
+        res.json(allLocals);
+        console.log("bringing all the locals")
+    } catch (error) {
+        res.status(500).json({ message: "Oops something went wrong" })
+    }
+};
+
 const getLocalById = async (req, res) => {
-    const { localById } = req.body;
-    const LocalsId = await Locals.findById({ _id: localById })
-    res.json(LocalsId);
-}
+    try {
+        const { localById } = req.params;
+        const LocalsId = await Locals.findById({ _id: localById })
+        res.json(LocalsId);
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+};
 
 const deleteLocalById = async (req, res) => {
-    const { localById } = req.params;
-    await Locals.deleteOne({ _id: localById });
-    res.json('deleted local');
+    try {
+        const { localById } = req.params;
+        await Locals.deleteOne({ _id: localById });
+        res.json('deleted local');
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
 };
 
 const deleteAllLocals = async (req, res) => {
-    await Locals.deleteMany({});
-    res.json("borrado todos los locales");
+    try {
+        await Locals.deleteMany({});
+        res.json("borrado todos los locales");
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
 }; //POR AHORA SOLO PARA QUITARLOS DE GOLPE, SI NO TIENE FUNCIONALIDAD FUERA
 
 const addLocal = async (req, res) => {
-    const {
-        discoName,
-        deals,
-        imgUrl
-    } = req.body;
-
-    const addNewLocal = new Locals({
-        discoName,
-        deals,
-        imgUrl
-    });
-    const savedLocal = await addNewLocal.save();
-    return res.json({
-        savedLocal,
-    });
-} // esta funciona en /add/upload
-
-const uploadLocal = async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
+        const { discoName, deals, imgUrl } = req.body;
+
+        if (req.files?.imgUrl) {
+            const result = await uploadImage(req.files.imgUrl.tempFilePath);
+
+            const newLocal = new Locals({
+                discoName,
+                deals,
+                imgUrl: result.secure_url
+            });
+            const savedLocal = await newLocal.save();
+            res.status(201).json({ message: 'Added drunk center', savedLocal });
         }
-        
-        const fileStr = req.file.path;
-        const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-            upload_preset: "hdcs5ief"
-        });
+        else {
+            const newLocal = new Locals({
+                discoName,
+                deals,
+                imgUrl: ''
+            });
+            const savedLocal = await newLocal.save();
+            console.log("Added drunk center without imgUrl")
+            res.status(201).json({ message: 'Added drunk center without imgUrl', savedLocal });
+        }
 
-        const imgUrl = uploadResponse.secure_url;
-        const newLocal = new Locals({
-            discoName: req.body.discoName,
-            deals: req.body.deals,
-            imgUrl: imgUrl,
-        });
-
-        await newLocal.save();
-
-        res.json({ message: 'uploaded image' });
     } catch (error) {
-        console.error('Error uploading image:', error);
-        res.status(500).json({ message: 'Error uploading image:', error: error.message });
+        console.error('Error adding drunk center:', error);
+        res.status(500).json({ message: 'Error adding drunk center', error: error.message });
     }
-}
+}; //ADDLOCAL CORRECT
+
 
 const editLocal = async (req, res) => {
-    const { localById } = req.body;
-    const localModified = Locals.updateOne({
-       localById
-    });
-    await localModified.save();
-    res.json('local updated');
-}
 
+    try {
+        const { localById } = req.params
+        const { discoName, deals, imgUrl } = req.body;
+        console.log('req.body:', req.body);
 
+        const updateFields = {
+            discoName,
+            deals,
+            imgUrl
+        };
+        const localModified = await Locals.findByIdAndUpdate({
+            _id: localById
+        }, {
+            $set: updateFields
+        },);
+        res.json('local updated');
+        console.log(localModified);
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+};
 module.exports = {
     getAllLocals,
     addLocal,
     deleteLocalById,
-    uploadLocal,
     getLocalById,
     deleteAllLocals,
-    editLocal
+    editLocal,
 }

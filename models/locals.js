@@ -12,7 +12,7 @@ const Locals = new Schema(
             required: [true, "campo obligatorio"]
         },
         imgUrl: {
-            type: String,
+            type: Object,
             required: true,
         }
         //TODO

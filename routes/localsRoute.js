@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+// const upload = multer({ dest: "uploads/images" });
+const upload = require("../configMulter/index");
 
 const localsController = require("../controllers/localsController");
 // const multer = require("../configMulter/index");
@@ -11,11 +13,7 @@ router.delete("/:localById", localsController.deleteLocalById);
 router.delete("/", localsController.deleteAllLocals);
 router.post("/add/upload", localsController.addLocal);
 
-// la funcion de cloudinary de upload
-router.post("/upload", localsController.uploadLocal);//??
-
-router.patch("/edit", localsController.uploadLocal);//??
-
+router.patch("/:localById", localsController.editLocal);//??
 
 
 
