@@ -7,17 +7,31 @@ const Locals = new Schema(
             type: String,
             required: [true, "campo obligatorio"]
         },
+        ubication: {
+            type: String,
+            required: [true, "campo obligatorio"]
+        },
+        date: {
+            type: String,
+            required: [true, "campo obligatorio"]
+        },
+        promotion: {
+            type: String,
+            required: [true, "campo obligatorio"]
+        },
         deals: {
             type: Number,
+            required: [true, "campo obligatorio"]
+        },
+        hour: {
+            type: String,
             required: [true, "campo obligatorio"]
         },
         imgUrl: {
             type: Object,
             required: true,
-        }
-        //TODO
-        //CXLOIUDINARY
-
+        }, 
+        categories: [String],
     },
     {
         timestamps: true, versionKey: false
