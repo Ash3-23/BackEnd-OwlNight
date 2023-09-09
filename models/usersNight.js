@@ -63,9 +63,9 @@ UsersNight.pre('save', function(next) {
 //   };
 
 
-UsersNight.methods.setImgUrl = function setImgUrl(filename) {
-    this.avatarImg = `${filename}`;
-};
+// UsersNight.methods.setImgUrl = function setImgUrl(filename) {
+//     this.avatarImg = `${filename}`;
+// };
 
 
 module.exports = mongoose.model('User', UsersNight);

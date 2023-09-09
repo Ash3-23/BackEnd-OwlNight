@@ -7,8 +7,7 @@ const ProManager = require("../models/proManager")
 
 const mySecret = process.env.TOKENSECRET
 
-
-//User Register + 
+//REGISTER USERSNIGHT
 const registerUserNight = async (req, res) => {
     try {
         const {
@@ -36,33 +35,25 @@ const registerUserNight = async (req, res) => {
         res.status(400).json({ message: error });
     }
 };
-
+//LOGIN USERSNIGHT Y PROMANAGER
 const login = async (req, res) => {
     const { usersName, password } = req.body;
-
     // Buscar si es un ProManager
     const proManager = await ProManager.findOne({ proName: usersName });
     console.log(password, "Promanager");
     if (proManager === password && usersName) {
         //ProManager
         console.log(proManager, "Promanager");
-
         const proPassword = await bcrypt.compare(password, proManager.password); //ESTO ME DEVUELVE UN FALSE
-
         console.log(proManager.password, "proManager.password"); //me devuelve el token
         console.log(proPassword, "paswordValid");
-
-       
-
-        if (proManager.password===proPassword) {
+        if (proManager.password === proPassword) {
             const token = signToken({ userId: proManager._id, usersName });
             return res.status(200).json({ result: "ProManager logueado correctamente", token });
         }
     }
-
     // Si no es un ProManager o la contraseña no coincide, colección de UsersNight
     const userNight = await UsersNight.findOne({ usersName: usersName });
-
     if (userNight) {
         const isPasswordValid = await bcrypt.compare(password, userNight.password);
         console.log(isPasswordValid, "password"); // esto me devuelve true si coincide
@@ -71,13 +62,9 @@ const login = async (req, res) => {
             return res.status(200).json({ result: "Usuario logueado correctamente", token });
         }
     }
-
     // Si no se encontró un ProManager ni un usuario normal, devolver un error
     return res.status(401).json({ message: 'Credenciales inválidas' });
 };
-
-
-
 
 const getUserNightById = async (req, res) => {
     console.log("soy el controlador del byId");
@@ -93,7 +80,7 @@ const getUserNightById = async (req, res) => {
     }
 };
 
-
+//no la estoy dando uso, se usa con proManager
 const getUsersNight = async (req, res) => {
     const usersNight = await UsersNight.find();
     res.json(usersNight)
@@ -104,43 +91,9 @@ const deleteUserNightById = async (req, res) => {
     const { userNightById } = req.params;
     await UsersNight.deleteOne({ _id: userNightById });
     res.json("borracho borrado");
-}; //no la estoy dando uso, se usa con proManager
-
-
-const getUserData = async (req, res) => {
-    try {
-        const token = req.header('Authorization');
-        const arr = token.split(' ');
-        const arrToken = arr[1];
-        console.log(token, "token 1");
-
-        const decoded = verifyToken(arrToken);
-        console.log(decoded, "decoded");
-
-        const userNight = await UsersNight.findById(decoded.userId);
-        console.log(userNight, "este es el usuario")
-
-        if (!userNight) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        const responseData = {
-            usersName: userNight.usersName,
-            email: userNight.email,
-            age: userNight.age,
-            avatarUrl: userNight.avatarImg.url
-        };
-
-        res.status(200).json(responseData);
-        console.log("Datos del usuario y URL de la imagen:", responseData);
-    } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ message: 'Token inválido' });
-        }
-        res.status(500).json({ message: 'Error en el servidor' });
-    }
 };
 
+//Función para meter la imagen en el avatar y editar los campos del usuario en el perfil
 const updateAvatar = async (req, res) => {
     try {
         const formData = new FormData();
@@ -158,6 +111,7 @@ const updateAvatar = async (req, res) => {
     }
 };
 
+//hacer aquí la lógica de reservas guardando los locales en el array de usersNIGHT
 const localBooking = async (req, res) => {
     try {
         const newBooking = await guardarReservaEnDB(req.body);
@@ -176,7 +130,27 @@ const localBooking = async (req, res) => {
 };
 
 
+// ESTA ES LA ANTIGUA Y FUNCIONA!!!!
+const getUserData = async (req, res) => {
+    try {
+        const token = req.header('Authorization');
+        const arr = token.split(' ');
+        const arrToken = arr[1];
 
+        const decoded = verifyToken(arrToken);
+
+        const userNight = await UsersNight.findById(decoded.userId);
+        if (!userNight) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        res.status(200).json(userNight);
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ message: 'Token inválido' });
+        }
+        res.status(500).json({ message: 'Error en el servidor' });
+    }
+};
 
 module.exports = {
     login,

@@ -30,7 +30,17 @@ const Locals = new Schema(
         imgUrl: {
             type: Object,
             required: true,
-        }, 
+        },
+        availableDates: [
+            {
+              calendar: {
+                type: Date,
+              },
+              timetable: {
+                type: String,
+              },
+            },
+          ],
         categories: [String],
     },
     {

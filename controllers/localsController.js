@@ -93,7 +93,6 @@ const addLocal = async (req, res) => {
 
 
 const editLocal = async (req, res) => {
-
     try {
         const { localById } = req.params
         const { discoName, deals, imgUrl } = req.body;
