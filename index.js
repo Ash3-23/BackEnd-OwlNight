@@ -18,7 +18,7 @@ app.use(fileupload({
     tempFileDir: "./uploads/images"
 }))
 mongoose.connect('mongodb+srv://nereatrebol2:TTxjK39mS2dspDGS@cluster0.p3y0lbb.mongodb.net/OwlNight')
-//poner la conecxión en .env
+//poner la conexión en .env
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -26,11 +26,13 @@ const upload = multer({ storage: storage });
 const usersNight = require("./routes/usersNightRoute");
 const locals = require("./routes/localsRoute");
 const proManager = require("./routes/proManagerRoute");
+const bookings = require("./routes/bookingRoute")
 
 
 app.use("/usersNight", usersNight);
 app.use("/locals", locals);
 app.use("/proManager", proManager);
+app.use("/bookings", bookings)
 
 app.listen(port, () => {
     console.log(`Conectados correctamente a la emisora de la noche, ${port}`);

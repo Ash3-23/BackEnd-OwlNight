@@ -2,19 +2,25 @@ const Locals = require('../models/locals');
 // const ProManager = require('../models/proManager') USO PARA EL EDIT?
 // const cloudinary = require('../cloudinaryConfig/index');
 require("dotenv").config();
-const upload = require('../configMulter/index');
+// const upload = require('../configMulter/index');
 const { uploadImage } = require("../cloudinaryConfig/index")
 
 
 const getAllLocals = async (req, res) => {
     try {
-        const allLocals = await Locals.find();
+        const queryParams = req.query;
+        console.log(queryParams.categories, "es esto");
+        const filter = {};
+        if (queryParams.categories) {
+            filter.categories = queryParams.categories;
+        }
+        const allLocals = await Locals.find(filter);
         res.json(allLocals);
         console.log("bringing all the locals")
     } catch (error) {
         res.status(500).json({ message: "Oops something went wrong" })
     }
-};
+}; //aplicar logica filtros
 
 const getLocalById = async (req, res) => {
     try {
@@ -25,6 +31,20 @@ const getLocalById = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 };
+
+// const getAvailableDates = async (req, res) => {
+//     try {
+//         // Aquí obtienes las fechas disponibles desde tu fuente de datos
+//         const localDates = req.body;
+//         const dates = localDates.availableDates;
+//         console.log(dates, "estas son las dates que me llegan");
+        
+//         res.status(200).json({ availableDates: dates });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Error al obtener las fechas disponibles' });
+//     }
+// };
+
 
 const deleteLocalById = async (req, res) => {
     try {
@@ -43,52 +63,86 @@ const deleteAllLocals = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
-}; //POR AHORA SOLO PARA QUITARLOS DE GOLPE, SI NO TIENE FUNCIONALIDAD FUERA
+}; // AÑADIR LA FUNCIÓN PARA QUE BORRE LAS IMÁGENES EN CLOUDINARY //BORRAR!!!
 
 const addLocal = async (req, res) => {
     try {
-        const { discoName, deals, imgUrl } = req.body;
-
+        const {
+            discoName,
+            ubication,
+            date,
+            promotion,
+            deals,
+            hour,
+            imgUrl,
+            availableDates,
+            categories
+        } = req.body;
         if (req.files?.imgUrl) {
             const result = await uploadImage(req.files.imgUrl.tempFilePath);
 
             const newLocal = new Locals({
                 discoName,
                 deals,
-                imgUrl: result.secure_url
+                imgUrl: result.secure_url,
+                ubication,
+                date,
+                promotion,
+                hour,
+                availableDates,
+                categories
             });
             const savedLocal = await newLocal.save();
-            res.status(201).json({ message: 'Added drunk center', savedLocal });
+            res.status(201).json({ message: 'Local added successfully', savedLocal });
         }
         else {
             const newLocal = new Locals({
                 discoName,
                 deals,
-                imgUrl: ''
+                imgUrl: '',
+                ubication,
+                date,
+                promotion,
+                hour,
+                availableDates,
+                categories
             });
             const savedLocal = await newLocal.save();
-            console.log("Added drunk center without imgUrl")
-            res.status(201).json({ message: 'Added drunk center without imgUrl', savedLocal });
+            res.status(201).json({ message: 'Local added successfully without imgUrl', savedLocal });
         }
 
     } catch (error) {
-        console.error('Error adding drunk center:', error);
-        res.status(500).json({ message: 'Error adding drunk center', error: error.message });
+        console.error('Error adding local:', error);
+        res.status(500).json({ message: 'Error adding local', error: error.message });
     }
-}; //ADDLOCAL CORRECT
-
+};
 
 const editLocal = async (req, res) => {
-
     try {
         const { localById } = req.params
-        const { discoName, deals, imgUrl } = req.body;
+        const {
+            discoName,
+            ubication,
+            date,
+            promotion,
+            deals,
+            hour,
+            imgUrl,
+            availableDates,
+            categories
+        } = req.body;
         console.log('req.body:', req.body);
 
         const updateFields = {
             discoName,
+            ubication,
+            date,
+            promotion,
             deals,
-            imgUrl
+            hour,
+            imgUrl,
+            availableDates,
+            categories
         };
         const localModified = await Locals.findByIdAndUpdate({
             _id: localById
@@ -101,11 +155,14 @@ const editLocal = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 };
+
 module.exports = {
     getAllLocals,
     addLocal,
+    // getAvailableDates,
     deleteLocalById,
     getLocalById,
     deleteAllLocals,
-    editLocal,
+    editLocal
+    
 }

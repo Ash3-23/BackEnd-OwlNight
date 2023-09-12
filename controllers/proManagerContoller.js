@@ -1,33 +1,32 @@
 const ProManager = require("../models/proManager");
-//webtokes, secret(.env) (ENCRYPT)
+const bcrypt = require('bcrypt');
 
-ProManager.findOne({ proName: "El Direc" })
-    .then(existingUser => {
-        if (existingUser) {
-            console.log("El usuario predeterminado ya existe en la base de datos.");
-        } else {
-            const defaultProManager = new ProManager({
-                proName: "El Direc",
-                password: "123123",
-            });
-            defaultProManager.save()
-                .then(savedProManager => {
-                    console.log("Usuario predeterminado creado:", savedProManager);
-                })
-                .catch(error => {
-                    console.error("Error al crear el usuario predeterminado:", error);
-                });
-        }
-    })
-    .catch(error => {
-        console.error("Error al verificar la existencia del usuario:", error);
-    });
+const createDefaultProManager = async () => {
+    try {
+      const existingUser = await ProManager.findOne({ proName: "El Direc" });
+  
+      if (existingUser) {
+        console.log("El usuario predeterminado ya existe en la base de datos.");
+        return;
+      }
+  
+      const defaultProManager = new ProManager({
+        proName: "El Direc",
+        password: 'pepe',
+      });
+  
+      await defaultProManager.save();
+  
+      console.log("Usuario predeterminado creado:", defaultProManager);
+    } catch (error) {
+      console.error("Error al crear el usuario predeterminado:", error);
+    }
+  };
 
 const loginProManager = async (req, res) => {
     try {
-        const username = req.body.username;
-        const password = req.body.password;
-        const proManager = await ProManager.findOne({ proName: username, password: password });
+        const { proName, password } = req.body;
+        const proManager = await ProManager.findOne({ proName: proName, password: password });
         if (!proManager) {
             return res.status(404).json({ message: "Credenciales inválidas" });
         }
@@ -37,6 +36,20 @@ const loginProManager = async (req, res) => {
     }
 };
 
+const getProManger = async (req, res) => { //si no me sirve la borro
+    try {
+        const proManager = await ProManager.findOne({ proName: "El Direc" });
+        if (!proManager) {
+            res.status(404).json({ message: "ProManager no encontrado" })
+        }
+        res.status(200).json({ message: "ProManager encontrado", proManager })
+    } catch (error) {
+        res.status(500).json({ message: "Error al encontrar el proManager", error });
+    }
+};
+
 module.exports = {
-    loginProManager
-}
+    createDefaultProManager,
+    loginProManager,
+    getProManger
+};
