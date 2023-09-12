@@ -11,7 +11,7 @@ const getAllLocals = async (req, res) => {
         const queryParams = req.query;
         console.log(queryParams.categories, "es esto");
         const filter = {};
-        if(queryParams.categories){
+        if (queryParams.categories) {
             filter.categories = queryParams.categories;
         }
         const allLocals = await Locals.find(filter);
@@ -31,6 +31,20 @@ const getLocalById = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 };
+
+// const getAvailableDates = async (req, res) => {
+//     try {
+//         // Aquí obtienes las fechas disponibles desde tu fuente de datos
+//         const localDates = req.body;
+//         const dates = localDates.availableDates;
+//         console.log(dates, "estas son las dates que me llegan");
+        
+//         res.status(200).json({ availableDates: dates });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Error al obtener las fechas disponibles' });
+//     }
+// };
+
 
 const deleteLocalById = async (req, res) => {
     try {
@@ -53,8 +67,17 @@ const deleteAllLocals = async (req, res) => {
 
 const addLocal = async (req, res) => {
     try {
-        const { discoName, deals, imgUrl, ubication, date, promotion, hour } = req.body;
-
+        const {
+            discoName,
+            ubication,
+            date,
+            promotion,
+            deals,
+            hour,
+            imgUrl,
+            availableDates,
+            categories
+        } = req.body;
         if (req.files?.imgUrl) {
             const result = await uploadImage(req.files.imgUrl.tempFilePath);
 
@@ -65,7 +88,9 @@ const addLocal = async (req, res) => {
                 ubication,
                 date,
                 promotion,
-                hour
+                hour,
+                availableDates,
+                categories
             });
             const savedLocal = await newLocal.save();
             res.status(201).json({ message: 'Local added successfully', savedLocal });
@@ -78,7 +103,9 @@ const addLocal = async (req, res) => {
                 ubication,
                 date,
                 promotion,
-                hour
+                hour,
+                availableDates,
+                categories
             });
             const savedLocal = await newLocal.save();
             res.status(201).json({ message: 'Local added successfully without imgUrl', savedLocal });
@@ -90,18 +117,32 @@ const addLocal = async (req, res) => {
     }
 };
 
-
-
 const editLocal = async (req, res) => {
     try {
         const { localById } = req.params
-        const { discoName, deals, imgUrl } = req.body;
+        const {
+            discoName,
+            ubication,
+            date,
+            promotion,
+            deals,
+            hour,
+            imgUrl,
+            availableDates,
+            categories
+        } = req.body;
         console.log('req.body:', req.body);
 
         const updateFields = {
             discoName,
+            ubication,
+            date,
+            promotion,
             deals,
-            imgUrl
+            hour,
+            imgUrl,
+            availableDates,
+            categories
         };
         const localModified = await Locals.findByIdAndUpdate({
             _id: localById
@@ -118,8 +159,10 @@ const editLocal = async (req, res) => {
 module.exports = {
     getAllLocals,
     addLocal,
+    // getAvailableDates,
     deleteLocalById,
     getLocalById,
     deleteAllLocals,
-    editLocal,
+    editLocal
+    
 }

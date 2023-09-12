@@ -12,8 +12,7 @@ const Locals = new Schema(
             required: [true, "campo obligatorio"]
         },
         date: {
-            type: String,
-            required: [true, "campo obligatorio"]
+            type: String
         },
         promotion: {
             type: String,
@@ -31,17 +30,14 @@ const Locals = new Schema(
             type: Object,
             required: true,
         },
-        availableDates: [
-            {
-              calendar: {
-                type: Date,
-              },
-              timetable: {
-                type: String,
-              },
-            },
-          ],
-        categories: [String],
+        availableDates: [{
+            type: String, // Cambiar de Date a String
+            required: true
+          }],
+        categories: [{
+            type: String,
+            required: true
+        }],
     },
     {
         timestamps: true, versionKey: false

@@ -10,10 +10,9 @@ const createDefaultProManager = async () => {
         return;
       }
   
-      const hashedPassword = await bcrypt.hash("pepe", 10); // Hashea la contraseña predeterminada
       const defaultProManager = new ProManager({
         proName: "El Direc",
-        password: hashedPassword, // Almacena la contraseña hasheada
+        password: 'pepe',
       });
   
       await defaultProManager.save();
