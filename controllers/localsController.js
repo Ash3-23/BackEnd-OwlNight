@@ -38,7 +38,7 @@ const getLocalById = async (req, res) => {
 //         const localDates = req.body;
 //         const dates = localDates.availableDates;
 //         console.log(dates, "estas son las dates que me llegan");
-        
+
 //         res.status(200).json({ availableDates: dates });
 //     } catch (error) {
 //         res.status(500).json({ error: 'Error al obtener las fechas disponibles' });
@@ -67,6 +67,8 @@ const deleteAllLocals = async (req, res) => {
 
 const addLocal = async (req, res) => {
     try {
+
+        //categories array y separado por comas Fechas?!?!?!
         const {
             discoName,
             ubication,
@@ -117,9 +119,23 @@ const addLocal = async (req, res) => {
     }
 };
 
+const getLatestLocals = async (req, res) => {
+    try {
+        const latestLocals = await Locals.find({ imgUrl: { $ne: "" } }) //{categories: "categ"}
+            .sort({ createdAt: -1 })
+            .limit(3);
+        res.json(latestLocals);
+        console.log(latestLocals, "estos son los 3 ultimos locales");
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener los últimos locales" });
+    }
+};
+
+
 const editLocal = async (req, res) => {
     try {
-        const { localById } = req.params
+        const { localById } = req.params;
         const {
             discoName,
             ubication,
@@ -144,13 +160,13 @@ const editLocal = async (req, res) => {
             availableDates,
             categories
         };
-        const localModified = await Locals.findByIdAndUpdate({
-            _id: localById
-        }, {
-            $set: updateFields
-        },);
+        const localModified = await Locals.findByIdAndUpdate(
+            localById,
+            {
+                $set: updateFields
+            },);
         res.json('local updated');
-        console.log(localModified);
+        console.log(localModified, "este es el local modificado");
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
@@ -159,10 +175,10 @@ const editLocal = async (req, res) => {
 module.exports = {
     getAllLocals,
     addLocal,
+    getLatestLocals,
     // getAvailableDates,
     deleteLocalById,
     getLocalById,
     deleteAllLocals,
     editLocal
-    
 }
