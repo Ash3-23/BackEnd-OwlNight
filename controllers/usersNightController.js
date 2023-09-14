@@ -35,23 +35,22 @@ const registerUserNight = async (req, res) => {
         res.status(400).json({ message: error });
     }
 };
+
 //LOGIN USERSNIGHT Y PROMANAGER
 const login = async (req, res) => {
     const { usersName, password } = req.body;
-    // Buscar si es un ProManager
     const proManager = await ProManager.findOne({ proName: usersName });
     console.log(password, "Promanager");
     if (usersName === 'El Direc') {
         //ProManager
-        console.log(password, "Promanager password login", proManager.password, 'password en la db' );
+        console.log(password, "Promanager password login", proManager.password, 'password en la db');
         const proPassword = await bcrypt.compare(password, proManager.password); //ESTO ME DEVUELVE UN FALSE
         console.log(proManager.password, "proManager.password"); //me devuelve el token
         console.log(proPassword, "paswordValid");
-        const token = signToken({ userId: proManager._id, usersName });
+        const token = signToken({ userId: proManager._id, usersName, userType: "proManager" });
         return res.status(200).json({ result: "ProManager logueado correctamente", token });
-        
+
     }
-    // Si no es un ProManager o la contraseña no coincide, colección de UsersNight
     const userNight = await UsersNight.findOne({ usersName: usersName });
     if (userNight) {
         const isPasswordValid = await bcrypt.compare(password, userNight.password);
@@ -61,7 +60,6 @@ const login = async (req, res) => {
             return res.status(200).json({ result: "Usuario logueado correctamente", token });
         }
     }
-    // Si no se encontró un ProManager ni un usuario normal, devolver un error
     return res.status(401).json({ message: 'Credenciales inválidas' });
 };
 
@@ -151,6 +149,39 @@ const getUserData = async (req, res) => {
     }
 };
 
+const editUser = async (req, res) => {
+    try {
+        const { userNightById } = req.params;
+        const {
+            usersName,
+            email,
+            password,
+            dni,
+            age,
+            avatarImg
+        } = req.body;
+        console.log('req.body de useuarioo:', req.body);
+
+        const updateFields = {
+            usersName,
+            email,
+            password,
+            dni,
+            age,
+            avatarImg
+        };
+        const userEdited = await UsersNight.findByIdAndUpdate(
+            userNightById,
+            {
+                $set: updateFields
+            },);
+        res.json(userEdited, 'userNight updated');
+        console.log(userEdited, "este es el usuario modificado");
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+};
+
 module.exports = {
     login,
     getUsersNight,
@@ -159,5 +190,6 @@ module.exports = {
     registerUserNight,
     getUserData,
     updateAvatar,
-    localBooking
+    localBooking,
+    editUser
 };

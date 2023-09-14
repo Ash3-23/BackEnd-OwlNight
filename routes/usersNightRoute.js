@@ -11,5 +11,6 @@ router.post("/", usersNightController.registerUserNight);
 router.post ("/login", usersNightController.login);
 router.post("/booking", usersNightController.localBooking);
 router.patch("/update", usersNightController.updateAvatar);
+router.patch("/:usersNightById", usersNightController.editUser);
 
 module.exports = router;
