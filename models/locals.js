@@ -31,9 +31,9 @@ const Locals = new Schema(
             required: true,
         },
         availableDates: [{
-            type: String, // Cambiar de Date a String
+            type: String,
             required: true
-          }],
+        }],
         categories: [{
             type: String,
             required: true

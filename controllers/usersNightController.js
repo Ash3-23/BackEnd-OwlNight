@@ -43,18 +43,13 @@ const login = async (req, res) => {
     console.log(password, "Promanager");
     if (usersName === 'El Direc') {
         //ProManager
-        console.log(password, "Promanager password login", proManager.password, 'password en la db');
-        const proPassword = await bcrypt.compare(password, proManager.password); //ESTO ME DEVUELVE UN FALSE
-        console.log(proManager.password, "proManager.password"); //me devuelve el token
-        console.log(proPassword, "paswordValid");
+        const proPassword = await bcrypt.compare(password, proManager.password);
         const token = signToken({ userId: proManager._id, usersName, userType: "proManager" });
         return res.status(200).json({ result: "ProManager logueado correctamente", token });
-
     }
     const userNight = await UsersNight.findOne({ usersName: usersName });
     if (userNight) {
         const isPasswordValid = await bcrypt.compare(password, userNight.password);
-        console.log(isPasswordValid, "password"); // esto me devuelve true si coincide
         if (isPasswordValid) {
             const token = signToken({ userId: userNight._id, usersName });
             return res.status(200).json({ result: "Usuario logueado correctamente", token });
@@ -64,7 +59,6 @@ const login = async (req, res) => {
 };
 
 const getUserNightById = async (req, res) => {
-    console.log("soy el controlador del byId");
     const { userNightById } = req.params;
     try {
         const userNight = await UsersNight.findById(userNightById);
@@ -77,12 +71,10 @@ const getUserNightById = async (req, res) => {
     }
 };
 
-//no la estoy dando uso, se usa con proManager
 const getUsersNight = async (req, res) => {
     const usersNight = await UsersNight.find();
     res.json(usersNight)
-}; //no la estoy dando uso, se usa con proManager
-
+};
 
 const deleteUserNightById = async (req, res) => {
     const { userNightById } = req.params;
@@ -90,14 +82,15 @@ const deleteUserNightById = async (req, res) => {
     res.json("borracho borrado");
 };
 
-//Función para meter la imagen en el avatar y editar los campos del usuario en el perfil
 const updateAvatar = async (req, res) => {
     try {
-        const formData = new FormData();
-        formData.append('avatar', req.file);
         const cloudinaryResponse = await uploadUserImage(req.file.path);
 
         const userNight = await UsersNight.findById(req.userId);
+
+        if (!userNight) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
         userNight.avatarImg = cloudinaryResponse.secure_url;
         await userNight.save();
 
@@ -108,32 +101,26 @@ const updateAvatar = async (req, res) => {
     }
 };
 
-//hacer aquí la lógica de reservas guardando los locales en el array de usersNIGHT
 const localBooking = async (req, res) => {
     try {
         const newBooking = await guardarReservaEnDB(req.body);
 
         const userId = req.userId;
         const reservasActuales = obtenerReservasDelUsuario(userId);
-
         reservasActuales.push(newBooking);
 
         const nuevoToken = generarNuevoTokenConReservas(userId, reservasActuales);
-
         res.status(200).json({ message: 'Reserva realizada con éxito', token: nuevoToken });
     } catch (error) {
         res.status(500).json({ message: 'Error al realizar la reserva' });
     }
 };
 
-
-// ESTA ES LA ANTIGUA Y FUNCIONA!!!!
 const getUserData = async (req, res) => {
     try {
         const token = req.header('Authorization');
         const arr = token.split(' ');
         const arrToken = arr[1];
-
         const decoded = verifyToken(arrToken);
 
         const userNight = await UsersNight.findById(decoded.userId);
@@ -160,25 +147,32 @@ const editUser = async (req, res) => {
             age,
             avatarImg
         } = req.body;
-        console.log('req.body de useuarioo:', req.body);
 
-        const updateFields = {
-            usersName,
-            email,
-            password,
-            dni,
-            age,
-            avatarImg
-        };
+        const user = await UsersNight.findById(userNightById);
+        console.log(user, "este es el usuario")
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        const updateUserFields = {};
+        if (usersName) updateUserFields.usersName = usersName;
+        if (email) updateUserFields.email = email;
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateUserFields.password = hashedPassword;
+        }
+        if (dni) updateUserFields.dni = dni;
+        if (age) updateUserFields.age = age;
+        if (avatarImg) updateUserFields.avatarImg = avatarImg;
+
         const userEdited = await UsersNight.findByIdAndUpdate(
             userNightById,
-            {
-                $set: updateFields
-            },);
-        res.json(userEdited, 'userNight updated');
-        console.log(userEdited, "este es el usuario modificado");
+            updateUserFields,
+            { new: true }
+        );
+        res.json(userEdited);
     } catch (error) {
-        res.status(500).json({ message: error.message })
+        console.error('Error al editar el usuario:', error);
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 };
 
