@@ -2,24 +2,24 @@ const { default: mongoose } = require("mongoose");
 const bcrypt = require('bcrypt');
 
 const BookingSchema = new mongoose.Schema({
-  
+
     fecha: {
-      type: Date,
-      required: true,
+        type: Date,
+        required: true,
     },
     local: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'UsersImages', 
-      required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'UsersImages',
+        required: true,
     }
-  });
+});
 
 const UsersNight = new mongoose.Schema({
     usersName: {
         type: String,
         required: true,
     },
-    email: 
+    email:
     {
         type: String,
         required: true,
@@ -34,18 +34,18 @@ const UsersNight = new mongoose.Schema({
         type: String,
         required: true,
     },
-    age:{
+    age: {
         type: Number,
         required: true,
     },
-    avatarImg:{
-        type: String,
+    avatarImg: {
+        type: Object,
     },
     reservas: [BookingSchema],
 
-}); 
+});
 
-UsersNight.pre('save', function(next) {
+UsersNight.pre('save', function (next) {
     const user = this;
 
     if (!user.isModified('password')) return next();
@@ -58,14 +58,9 @@ UsersNight.pre('save', function(next) {
     });
 });
 
-// UsersNight.methods.agregarReserva = function(reserva) {
-//     this.reservas.push(reserva);
-//   };
-
-
-// UsersNight.methods.setImgUrl = function setImgUrl(filename) {
-//     this.avatarImg = `${filename}`;
-// };
+UsersNight.methods.setImgUrl = function setImgUrl(filename) {
+    this.avatarImg = `${filename}`;
+};
 
 
 module.exports = mongoose.model('User', UsersNight);

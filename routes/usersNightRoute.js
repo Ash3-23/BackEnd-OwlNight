@@ -10,7 +10,7 @@ router.delete("/:userNightById", usersNightController.deleteUserNightById);
 router.post("/", usersNightController.registerUserNight);
 router.post ("/login", usersNightController.login);
 router.post("/booking", usersNightController.localBooking);
-router.patch("/update", usersNightController.updateAvatar);
-router.patch("/:usersNightById", usersNightController.editUser);
+router.patch("/:userNightById", usersNightController.editUser);
+router.post("/update", usersNightController.updateAvatar);
 
 module.exports = router;

@@ -18,7 +18,6 @@ app.use(fileupload({
     tempFileDir: "./uploads/images"
 }))
 mongoose.connect('mongodb+srv://nereatrebol2:TTxjK39mS2dspDGS@cluster0.p3y0lbb.mongodb.net/OwlNight')
-//poner la conexión en .env
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });

@@ -1,10 +1,6 @@
 const Locals = require('../models/locals');
-// const ProManager = require('../models/proManager') USO PARA EL EDIT?
-// const cloudinary = require('../cloudinaryConfig/index');
 require("dotenv").config();
-// const upload = require('../configMulter/index');
 const { uploadImage } = require("../cloudinaryConfig/index")
-
 
 const getAllLocals = async (req, res) => {
     try {
@@ -20,7 +16,7 @@ const getAllLocals = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Oops something went wrong" })
     }
-}; //aplicar logica filtros
+};
 
 const getLocalById = async (req, res) => {
     try {
@@ -31,20 +27,6 @@ const getLocalById = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 };
-
-// const getAvailableDates = async (req, res) => {
-//     try {
-//         // Aquí obtienes las fechas disponibles desde tu fuente de datos
-//         const localDates = req.body;
-//         const dates = localDates.availableDates;
-//         console.log(dates, "estas son las dates que me llegan");
-
-//         res.status(200).json({ availableDates: dates });
-//     } catch (error) {
-//         res.status(500).json({ error: 'Error al obtener las fechas disponibles' });
-//     }
-// };
-
 
 const deleteLocalById = async (req, res) => {
     try {
@@ -63,12 +45,10 @@ const deleteAllLocals = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
-}; // AÑADIR LA FUNCIÓN PARA QUE BORRE LAS IMÁGENES EN CLOUDINARY //BORRAR!!!
+};
 
 const addLocal = async (req, res) => {
     try {
-
-        //categories array y separado por comas Fechas?!?!?!
         const {
             discoName,
             ubication,
@@ -121,7 +101,7 @@ const addLocal = async (req, res) => {
 
 const getLatestLocals = async (req, res) => {
     try {
-        const latestLocals = await Locals.find({ imgUrl: { $ne: "" } }) //{categories: "categ"}
+        const latestLocals = await Locals.find({ imgUrl: { $ne: "" } })
             .sort({ createdAt: -1 })
             .limit(3);
         res.json(latestLocals);
@@ -131,7 +111,6 @@ const getLatestLocals = async (req, res) => {
         res.status(500).json({ message: "Error al obtener los últimos locales" });
     }
 };
-
 
 const editLocal = async (req, res) => {
     try {
@@ -176,7 +155,6 @@ module.exports = {
     getAllLocals,
     addLocal,
     getLatestLocals,
-    // getAvailableDates,
     deleteLocalById,
     getLocalById,
     deleteAllLocals,

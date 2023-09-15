@@ -15,7 +15,7 @@ const ProManagerSchema = new Schema({
     },
 });
 
-ProManagerSchema.pre('save', async function(next) {
+ProManagerSchema.pre('save', async function (next) {
     const proManager = this;
 
     if (!proManager.isModified('password')) return next();
@@ -29,7 +29,6 @@ ProManagerSchema.pre('save', async function(next) {
         return next(error);
     }
 });
-
 
 const ProManager = mongoose.model("ProManager", ProManagerSchema);
 

@@ -10,7 +10,7 @@ const verifyToken = (token) => {
   const decoded = jwt.verify(token, mySecret);
   console.log(decoded, "este es el decoded");
   return decoded;
-  
+
 };
 
 module.exports = {
