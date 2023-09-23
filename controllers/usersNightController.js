@@ -40,7 +40,6 @@ const registerUserNight = async (req, res) => {
 const login = async (req, res) => {
     const { usersName, password } = req.body;
     const proManager = await ProManager.findOne({ proName: usersName });
-    console.log(password, "Promanager");
     if (usersName === 'El Direc') {
         //ProManager
         const proPassword = await bcrypt.compare(password, proManager.password);
@@ -83,16 +82,22 @@ const deleteUserNightById = async (req, res) => {
 };
 
 const updateAvatar = async (req, res) => {
-    try {
-        const cloudinaryResponse = await uploadUserImage(req.file.path);
+    const { userNightById } = req.params;
+    console.log(userNightById, "este es el usuario");
 
-        const userNight = await UsersNight.findById(req.userId);
+    try {
+        // const userNight = await UsersNight.findById(req.userId);
+        const userNight = await UsersNight.findById(userNightById);
+        console.log(userNight, "este es el usuario");
+
+        const cloudinaryResponse = await uploadUserImage(req.files.avatarImg.tempFilePath);
 
         if (!userNight) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
         userNight.avatarImg = cloudinaryResponse.secure_url;
         await userNight.save();
+        console.log(userNight, "este es el userNight save");
 
         res.status(200).json({ avatarUrl: userNight.avatarImg });
     } catch (error) {
