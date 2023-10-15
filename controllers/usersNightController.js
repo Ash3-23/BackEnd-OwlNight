@@ -99,7 +99,7 @@ const updateAvatar = async (req, res) => {
         await userNight.save();
         console.log(userNight, "este es el userNight save");
 
-        res.status(200).json({ avatarUrl: userNight.avatarImg });
+        res.status(200).json({ avatarIMG: userNight.avatarImg });
     } catch (error) {
         console.error('Error al actualizar la imagen de avatar:', error);
         res.status(500).json({ message: 'Error en el servidor' });
